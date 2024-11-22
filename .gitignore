@@ -1,3 +1,7 @@
 # Ignore environment configuration file
-*.env
+.env
+*.md
+*.pdf
+/api_collection
+/atlas
 *.pyc

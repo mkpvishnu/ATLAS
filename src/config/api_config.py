@@ -9,7 +9,7 @@ class APIConfig:
         "model_name": "Azure-GPT-4o-mini",
         "api_url": "https://cloudverse.freshworkscorp.com/api/chat",
         "default_params": {
-            "max_tokens": 4096,
+            "max_tokens": 12096,
             "temperature": 0,
             "top_p": 1,
             "frequency_penalty": 0,
