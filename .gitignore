@@ -1,0 +1,3 @@
+# Ignore environment configuration file
+*.env
+*.pyc

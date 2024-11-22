@@ -1,0 +1,6 @@
+Simpler extension: 
+Adding new task types only requires:
+    Adding criteria to evaluation_criteria.json
+    Adding weights to evaluation_config.py
+    Adding a prompt generator method in PromptGenerator
+    Registering the task type in EvaluatorRegistry

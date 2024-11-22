@@ -1,0 +1,32 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3309,
+            "driver": "MySQL",
+            "name": "system42stag",
+            "username": "root",
+            "password": "HHtjah89",
+            "database": "system42_staging"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3308,
+            "driver": "MySQL",
+            "name": "gdpr",
+            "database": "middleware2",
+            "username": "admin",
+            "password": "jqMrduhk8uF8ApC"
+        }
+    ]
+}

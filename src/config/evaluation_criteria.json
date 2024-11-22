@@ -1,0 +1,67 @@
+{
+    "conversation_evaluation": {
+        "coherence": {
+            "25": "Perfect flow, natural transitions, and clear logical progression",
+            "20": "Strong coherence with minor inconsistencies",
+            "15": "Adequate coherence but some awkward transitions",
+            "10": "Notable gaps in coherence",
+            "5": "Significant coherence issues"
+        },
+        "relevance": {
+            "25": "Responses directly address users needs with precise information",
+            "20": "Mostly relevant with minor tangents",
+            "15": "Generally relevant but some off-topic elements",
+            "10": "Significant irrelevant content",
+            "5": "Mostly irrelevant responses"
+        },
+        "helpfulness": {
+            "25": "Exceptional assistance, going above and beyond",
+            "20": "Very helpful with good solutions",
+            "15": "Moderately helpful",
+            "10": "Minimal help provided",
+            "5": "Not helpful or misleading"
+        },
+        "context_awareness": {
+            "15": "Perfect recall and use of conversation history",
+            "10": "Good context awareness with minor misses",
+            "5": "Poor context awareness"
+        },
+        "consistency": {
+            "10": "Perfect consistency in tone, information, and approach",
+            "7": "Minor consistency issues",
+            "3": "Major consistency issues"
+        }
+    },
+    "code_quality_evaluation": {
+        "readability": {
+            "25": "Exceptional code clarity and documentation",
+            "20": "Very readable with good documentation",
+            "15": "Adequately readable with basic documentation",
+            "10": "Poor readability or documentation",
+            "5": "Unreadable or undocumented"
+        },
+        "maintainability": {
+            "25": "Highly maintainable, modular design",
+            "20": "Good maintainability with minor issues",
+            "15": "Average maintainability",
+            "10": "Difficult to maintain",
+            "5": "Poor maintainability"
+        },
+        "efficiency": {
+            "20": "Optimal performance and resource usage",
+            "15": "Good performance with minor inefficiencies",
+            "10": "Average performance",
+            "5": "Poor performance"
+        },
+        "best_practices": {
+            "15": "Follows all best practices",
+            "10": "Generally follows best practices",
+            "5": "Violates several best practices"
+        },
+        "error_handling": {
+            "15": "Comprehensive error handling",
+            "10": "Basic error handling",
+            "5": "Poor or no error handling"
+        }
+    }
+}
