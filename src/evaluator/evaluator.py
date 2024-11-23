@@ -1,66 +1,93 @@
 from datetime import datetime
 import logging
-from typing import Dict
+from typing import Dict, Optional
 
 from .base_evaluator import BaseEvaluator
 from .prompt_generator import PromptGenerator
 from utils.metrics import MetricsCalculator
 from utils.llm_parser import LLMResponseParser
+from utils.task_identifier import task_identifier
 from models.cloudverse import CloudverseClient
-from config.evaluation_config import EvaluationConfig
 from config.api_config import APIConfig
+from config.config_manager import config_manager
 
 class Evaluator(BaseEvaluator):
-    def __init__(self, task_type: str, num_evaluations: int = 5):
+    def __init__(self, task_type: Optional[str] = None, num_evaluations: int = 5, model_name: Optional[str] = None):
         """
         Initialize evaluator for any task type
         
         Args:
-            task_type: Type of evaluation task (e.g., "conversation_evaluation", "code_quality_evaluation")
+            task_type: Type of evaluation task (optional)
             num_evaluations: Number of evaluations to perform
+            model_name: Override default model name
         """
         super().__init__(task_type, num_evaluations)
-        self.weights = EvaluationConfig.get_weights(self.task_type)
-        self.metrics = list(self.weights.keys())
+        if task_type:
+            self.weights = config_manager.get_task_weights(task_type)
+            self.metrics = list(self.weights.keys())
+        
+        # Initialize components
+        self.prompt_generator = PromptGenerator()
+        self.metrics_calculator = MetricsCalculator()
+        self.llm_parser = LLMResponseParser()
         
         # Initialize LLM client with config
-        config = APIConfig.CLOUDVERSE_CONFIG
+        config = APIConfig.CLOUDVERSE_CONFIG.copy()
+        if model_name:
+            config["model_name"] = model_name
         self.llm_client = CloudverseClient(
             token=config["token"],
             model_name=config["model_name"]
         )
 
-        logging.info(f"Initialized evaluator for {task_type} with {num_evaluations} evaluations")
+        logging.info(f"Initialized evaluator with {num_evaluations} evaluations" + 
+                    (f" for {task_type}" if task_type else ""))
 
-    def evaluate(self, content: str) -> Dict:
+    def evaluate(self, content: str, prompt: Optional[str] = None) -> Dict:
         """
         Evaluate content based on task type
         
         Args:
             content: Content to evaluate (conversation text, code, etc.)
+            prompt: Original prompt that generated the content (optional)
         
         Returns:
             Dict containing evaluation results
         """
+        # If no task type was provided during initialization, identify it from prompt
+        if not self.task_type and prompt:
+            self.task_type = task_identifier.identify_task_from_prompt(prompt)
+            logging.info(f"Identified task type from prompt: {self.task_type}")
+            # Update weights based on identified task type
+            self.weights = config_manager.get_task_weights(self.task_type)
+            self.metrics = list(self.weights.keys())
+        elif not self.task_type:
+            # Default to conversation evaluation if no prompt and no task type
+            self.task_type = "conversation_evaluation"
+            logging.info("No prompt provided, defaulting to conversation evaluation")
+            self.weights = config_manager.get_task_weights(self.task_type)
+            self.metrics = list(self.weights.keys())
+        
         all_evaluations = []
         
         for i in range(self.num_evaluations):
             logging.info(f"Performing evaluation {i+1}/{self.num_evaluations}")
-            prompt = PromptGenerator.generate_prompt(
+            evaluation_prompt = self.prompt_generator.generate_prompt(
                 self.task_type,
-                content, 
-                self.evaluation_criteria
+                content
             )
-            evaluation = self._get_llm_evaluation(prompt)
+            print(evaluation_prompt)
+            evaluation = self._get_llm_evaluation(evaluation_prompt)
+            print(evaluation)
             all_evaluations.append(evaluation)
         
-        aggregated_scores = MetricsCalculator.aggregate_scores(
+        aggregated_scores = self.metrics_calculator.aggregate_scores(
             all_evaluations, 
-            self.evaluation_criteria
+            self.task_type
         )
-        confidence, reliability = MetricsCalculator.calculate_confidence_and_reliability(
+        confidence, reliability = self.metrics_calculator.calculate_confidence_and_reliability(
             all_evaluations,
-            self.evaluation_criteria
+            self.task_type
         )
         final_score = self._calculate_final_score(aggregated_scores)
         
@@ -72,16 +99,14 @@ class Evaluator(BaseEvaluator):
             "evaluation_metadata": {
                 "num_evaluations": self.num_evaluations,
                 "timestamp": datetime.now().isoformat(),
-                "weights": self.weights,
-                "task_type": self.task_type
+                "weightages": self.weights,
+                "task_type": self.task_type,
+                "model_name": self.llm_client.model_name
             }
         }
 
     def _calculate_final_score(self, aggregated_scores: Dict) -> float:
-        weighted_sum = 0
-        for metric, weight in self.weights.items():
-            weighted_sum += aggregated_scores[metric]["normalized_score"] * weight
-        return round(weighted_sum, 2)
+        return round(aggregated_scores.get("total_weighted_score", 0), 2)
 
     def _get_llm_evaluation(self, prompt: str) -> Dict:
         """Get evaluation from LLM and parse the response"""
@@ -91,7 +116,10 @@ class Evaluator(BaseEvaluator):
                 prompt=prompt,
                 **config
             )
-            return LLMResponseParser.parse_evaluation_response(response, self.metrics)
+            #Print full response including headers
+            print(f"Full response: {response}")
+            
+            return self.llm_parser.parse_evaluation_response(response, self.task_type)
             
         except Exception as e:
             logging.error(f"Error getting LLM evaluation: {str(e)}")

@@ -1,0 +1,214 @@
+{
+    "task_types": {
+        "conversation_evaluation": {
+            "description": "Evaluation of general conversational interactions with users",
+            "system_prompt": "You are an expert conversation evaluator specializing in human-AI interactions. Your task is to analyze the following conversation based on specific criteria including coherence, relevance, context awareness, and communication consistency. Pay special attention to the flow of dialogue, adherence to context, and effectiveness of responses. Provide detailed scoring and constructive feedback for improvement.",
+            "weightages": {
+                "coherence": 0.25,
+                "relevance": 0.25,
+                "conversational_context_awareness": 0.20,
+                "communication_style_consistency": 0.15,
+                "helpfulness": 0.15
+            }
+        },
+        "code_generation": {
+            "description": "Evaluation of generated programming code",
+            "system_prompt": "You are an expert software engineer and code quality assessor. Your task is to evaluate the following code generation output based on industry best practices, focusing on readability, maintainability, error handling, and adherence to coding standards. Consider both technical excellence and practical implementation. Provide detailed analysis of strengths and areas for improvement.",
+            "weightages": {
+                "readability": 0.20,
+                "maintainability": 0.20,
+                "best_practices": 0.20,
+                "error_handling": 0.15,
+                "technical_context_awareness": 0.15,
+                "code_style_consistency": 0.10
+            }
+        },
+        "content_writing": {
+            "description": "Evaluation of written content like articles, blogs, or documentation",
+            "system_prompt": "You are an expert content editor and writing analyst. Evaluate the following written content for its quality, structure, and effectiveness. Focus on coherence, relevance to the target audience, readability, and consistency in communication style. Consider both technical accuracy and engaging presentation. Provide specific feedback on strengths and areas for enhancement.",
+            "weightages": {
+                "coherence": 0.25,
+                "relevance": 0.25,
+                "readability": 0.20,
+                "communication_style_consistency": 0.15,
+                "technical_context_awareness": 0.15
+            }
+        },
+        "data_analysis": {
+            "description": "Evaluation of data analysis and interpretation tasks",
+            "system_prompt": "You are an expert data analyst and statistical evaluator. Your task is to assess the following data analysis work, focusing on technical accuracy, interpretation quality, and presentation of insights. Evaluate the methodological approach, handling of data contexts, and effectiveness of conclusions drawn. Provide detailed feedback on both technical rigor and practical utility.",
+            "weightages": {
+                "relevance": 0.25,
+                "technical_context_awareness": 0.20,
+                "coherence": 0.20,
+                "file_context_awareness": 0.20,
+                "error_handling": 0.15
+            }
+        },
+        "summarization": {
+            "description": "Condensing longer content while preserving key information",
+            "system_prompt": "You are an expert in content summarization and information distillation. Your task is to evaluate how effectively the following summary captures and conveys the essential information from the original content. Focus on information retention, conciseness, and accuracy. Assess both what is included and what is appropriately omitted. Consider the balance between brevity and completeness.",
+            "weightages": {
+                "information_retention": 0.25,
+                "conciseness": 0.25,
+                "coherence": 0.20,
+                "accuracy": 0.15,
+                "relevance": 0.15
+            }
+        },
+        "paraphrasing": {
+            "description": "Rewording content while maintaining original meaning",
+            "system_prompt": "You are an expert in content transformation and linguistic analysis. Evaluate how effectively the following paraphrased content maintains the original meaning while providing fresh expression. Focus on accuracy of meaning preservation, creativity in rewording, and maintenance of tone. Assess both semantic equivalence and stylistic improvement.",
+            "weightages": {
+                "information_retention": 0.25,
+                "creativity": 0.20,
+                "accuracy": 0.20,
+                "coherence": 0.20,
+                "communication_style_consistency": 0.15
+            }
+        },
+        "technical_explanation": {
+            "description": "Evaluation of technical concept explanations",
+            "system_prompt": "You are an expert in technical communication and pedagogical effectiveness. Your task is to evaluate how well the following technical explanation conveys complex concepts to its intended audience. Assess clarity, accuracy, logical flow, and appropriateness of technical depth. Consider both technical precision and accessibility of explanation.",
+            "weightages": {
+                "coherence": 0.25,
+                "readability": 0.25,
+                "technical_context_awareness": 0.20,
+                "communication_style_consistency": 0.15,
+                "relevance": 0.15
+            }
+        },
+        "api_documentation": {
+            "description": "Evaluation of API documentation generation",
+            "system_prompt": "You are an expert in API documentation and technical writing. Evaluate the following API documentation for completeness, clarity, and technical accuracy. Focus on how well it serves both experienced developers and newcomers. Assess the balance between technical detail and practical usability. Consider standard documentation practices and developer experience.",
+            "weightages": {
+                "readability": 0.25,
+                "technical_context_awareness": 0.20,
+                "coherence": 0.20,
+                "code_style_consistency": 0.20,
+                "best_practices": 0.15
+            }
+        },
+        "code_review": {
+            "description": "Evaluation of code review comments and suggestions",
+            "system_prompt": "You are an expert code reviewer and software quality assessor. Your task is to evaluate the effectiveness of the following code review feedback. Assess technical accuracy, constructiveness of suggestions, and clarity of communication. Consider both the technical validity of the feedback and its potential impact on code improvement.",
+            "weightages": {
+                "technical_context_awareness": 0.25,
+                "relevance": 0.20,
+                "best_practices": 0.20,
+                "communication_style_consistency": 0.20,
+                "helpfulness": 0.15
+            }
+        },
+        "debug_assistance": {
+            "description": "Evaluation of debugging help and error resolution",
+            "system_prompt": "You are an expert debugging consultant and problem-solving analyst. Evaluate the following debugging assistance for effectiveness in problem resolution. Focus on technical accuracy, methodology, and clarity of explanation. Assess both the technical soundness of the solution and how well it guides the user to understanding.",
+            "weightages": {
+                "technical_context_awareness": 0.25,
+                "error_handling": 0.25,
+                "relevance": 0.20,
+                "helpfulness": 0.15,
+                "file_context_awareness": 0.15
+            }
+        },
+        "requirements_analysis": {
+            "description": "Evaluation of requirement gathering and analysis",
+            "system_prompt": "You are an expert requirements analyst and system architect. Your task is to evaluate the following requirements analysis for completeness, clarity, and technical feasibility. Focus on how well it captures stakeholder needs and translates them into actionable specifications. Consider both business context and technical implications.",
+            "weightages": {
+                "coherence": 0.25,
+                "technical_context_awareness": 0.25,
+                "conversational_context_awareness": 0.20,
+                "relevance": 0.15,
+                "communication_style_consistency": 0.15
+            }
+        },
+        "system_design": {
+            "description": "Evaluation of high-level system design proposals",
+            "system_prompt": "You are an expert system architect and technical design evaluator. Assess the following system design proposal for technical soundness, scalability, and adherence to best practices. Focus on architecture decisions, component interactions, and overall system coherence. Consider both theoretical excellence and practical implementation feasibility.",
+            "weightages": {
+                "technical_context_awareness": 0.30,
+                "coherence": 0.25,
+                "best_practices": 0.20,
+                "maintainability": 0.15,
+                "communication_style_consistency": 0.10
+            }
+        },
+        "creative_writing": {
+            "description": "Generation of original creative content",
+            "system_prompt": "You are an expert creative writing evaluator and literary critic. Assess the following creative piece for originality, narrative coherence, and stylistic excellence. Focus on creative elements, emotional resonance, and effectiveness of expression. Consider both artistic merit and audience engagement.",
+            "weightages": {
+                "creativity": 0.30,
+                "coherence": 0.25,
+                "communication_style_consistency": 0.20,
+                "tone_appropriateness": 0.15,
+                "cultural_sensitivity": 0.10
+            }
+        },
+        "translation": {
+            "description": "Converting content between languages",
+            "system_prompt": "You are an expert translator and cross-cultural communication specialist. Evaluate the following translation for accuracy, cultural appropriateness, and preservation of original meaning. Focus on both linguistic precision and cultural nuance. Consider how well the translation maintains the intent, style, and impact of the original text.",
+            "weightages": {
+                "accuracy": 0.25,
+                "information_retention": 0.25,
+                "cultural_sensitivity": 0.20,
+                "tone_appropriateness": 0.15,
+                "coherence": 0.15
+            }
+        },
+        "fact_checking": {
+            "description": "Verifying accuracy of information",
+            "system_prompt": "You are an expert fact-checker and verification specialist. Your task is to evaluate the following fact-checking analysis for thoroughness, accuracy, and proper source validation. Focus on methodology, evidence quality, and clarity of conclusions. Consider both the verification process and the presentation of findings.",
+            "weightages": {
+                "accuracy": 0.35,
+                "source_fidelity": 0.25,
+                "relevance": 0.20,
+                "coherence": 0.10,
+                "communication_style_consistency": 0.10
+            }
+        },
+        "content_adaptation": {
+            "description": "Adapting content for different audiences or formats",
+            "system_prompt": "You are an expert in content adaptation and audience-focused communication. Evaluate how effectively the following content has been adapted for its target audience. Focus on appropriateness of tone, cultural sensitivity, and preservation of core message. Consider both the transformation process and final presentation.",
+            "weightages": {
+                "tone_appropriateness": 0.25,
+                "cultural_sensitivity": 0.20,
+                "information_retention": 0.20,
+                "coherence": 0.20,
+                "relevance": 0.15
+            }
+        },
+        "sentiment_analysis": {
+            "description": "Analyzing and interpreting emotional tone in content",
+            "system_prompt": "You are an expert in sentiment analysis and emotional content interpretation. Your task is to evaluate the following sentiment analysis for accuracy, nuance, and cultural awareness. Focus on detection of subtle emotional cues and consideration of context. Assess both technical accuracy and depth of emotional insight.",
+            "weightages": {
+                "accuracy": 0.30,
+                "cultural_sensitivity": 0.25,
+                "tone_appropriateness": 0.20,
+                "relevance": 0.15,
+                "coherence": 0.10
+            }
+        },
+        "research_synthesis": {
+            "description": "Combining and analyzing information from multiple sources",
+            "system_prompt": "You are an expert research analyst and information synthesis specialist. Evaluate the following research synthesis for comprehensiveness, accuracy, and effective integration of sources. Focus on how well it combines and presents information from multiple sources. Consider both academic rigor and practical utility.",
+            "weightages": {
+                "accuracy": 0.25,
+                "source_fidelity": 0.20,
+                "coherence": 0.20,
+                "relevance": 0.20,
+                "information_retention": 0.15
+            }
+        },
+        "educational_content": {
+            "description": "Creating learning materials and explanations",
+            "system_prompt": "You are an expert educational content evaluator and pedagogical specialist. Assess the following educational material for clarity, accuracy, and effectiveness in promoting learning. Focus on educational value, engagement, and appropriateness for the target audience. Consider both content accuracy and teaching effectiveness.",
+            "weightages": {
+                "accuracy": 0.25,
+                "coherence": 0.20,
+                "tone_appropriateness": 0.20,
+                "cultural_sensitivity": 0.20,
+                "relevance": 0.15
+            }
+        }
+    }
+}

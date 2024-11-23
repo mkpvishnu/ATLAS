@@ -1,0 +1,213 @@
+{
+    "code_quality_metrics": {
+        "coherence": {
+            "description": "Logical flow and connection between ideas, demonstrating clear thought progression and relationships between different components",
+            "scoring_criteria": {
+                "10": "Perfect logical progression, seamless transitions",
+                "8": "Clear flow with minor gaps",
+                "6": "Generally coherent but with noticeable gaps",
+                "4": "Significant breaks in logic",
+                "2": "Incoherent, ideas are disconnected",
+                "0": "Complete lack of logical structure or organization"
+            }
+        },
+        "relevance": {
+            "description": "Alignment with task requirements and objectives, focusing on solving the intended problem without unnecessary divergence",
+            "scoring_criteria": {
+                "10": "Relevant and aligned with the task",
+                "8": "Mostly relevant but with minor tangents",
+                "6": "Relevant but with some off-topic elements",
+                "4": "Significant irrelevant content",
+                "2": "Irrelevant or not aligned with the task",
+                "0": "Completely misses the purpose or solves wrong problem"
+            }
+        },
+        "helpfulness": {
+            "description": "The degree to which a response provides practical, actionable, and valuable assistance in addressing the user's needs, questions, or problems. This includes solution quality, actionability, proactiveness, user empowerment, and efficiency.",
+            "scoring_criteria": {
+              "10": "Perfect assistance: Complete, actionable solution with proactive guidance, clear explanations, and optimal efficiency. Fully addresses user needs and empowers future problem-solving",
+              "8": "Strong assistance: Comprehensive solution with good actionability and proactive elements. Minor gaps in explanations or efficiency",
+              "6": "Adequate assistance: Workable solution with basic guidance. Some gaps in completeness, actionability, or proactive support",
+              "4": "Limited assistance: Partial or suboptimal solution. Significant gaps in guidance, proactiveness, or user empowerment",
+              "2": "Poor assistance: Inadequate solution with minimal practical value. Major deficiencies in multiple aspects",
+              "0": "No assistance: Provides no useful help or solution. Fails to address user needs or provides misleading guidance"
+            }
+          },
+        "readability": {
+            "description": "Ease of understanding the code's purpose and functionality, including appropriate naming conventions, formatting, and documentation",
+            "scoring_criteria": {
+                "10": "Exceptionally clear, self-documenting code with perfect formatting",
+                "8": "Well-formatted, easy to read with clear variable/function names",
+                "6": "Generally readable but with some unclear sections",
+                "4": "Difficult to understand, poor formatting or naming",
+                "2": "Very hard to read, confusing structure and naming",
+                "0": "Completely unreadable, no formatting or documentation"
+            }
+        },
+        "maintainability": {
+            "description": "Ease of modifying, updating, and extending the code, including modularity, coupling, and cohesion considerations",
+            "scoring_criteria": {
+                "10": "Highly maintainable, perfectly modular with minimal coupling",
+                "8": "Easy to maintain with good separation of concerns",
+                "6": "Moderately maintainable with some technical debt",
+                "4": "Difficult to maintain, high coupling between components",
+                "2": "Very hard to maintain, poor structure and high complexity",
+                "0": "Unmaintainable, requires complete rewrite"
+            }
+        },
+        "best_practices": {
+            "description": "Adherence to industry standards, design patterns, and coding conventions specific to the programming language and context",
+            "scoring_criteria": {
+                "10": "Perfect adherence to all relevant best practices",
+                "8": "Strong implementation of best practices with minor deviations",
+                "6": "Generally follows best practices with some notable exceptions",
+                "4": "Significant deviation from best practices",
+                "2": "Poor implementation of standard practices",
+                "0": "Complete disregard for established best practices"
+            }
+        },
+        "error_handling": {
+            "description": "Robustness of error detection, prevention, and recovery mechanisms, including input validation and exception handling",
+            "scoring_criteria": {
+                "10": "Comprehensive error handling covering all edge cases",
+                "8": "Strong error handling with minor gaps in coverage",
+                "6": "Basic error handling for common cases",
+                "4": "Minimal error handling with significant gaps",
+                "2": "Poor error handling, major vulnerabilities",
+                "0": "No error handling implemented"
+            }
+        },
+        "technical_context_awareness": {
+            "description": "Understanding and appropriate handling of the broader system context, including performance implications, security considerations, and integration requirements",
+            "scoring_criteria": {
+                "10": "Perfect awareness and handling of all technical contextual factors",
+                "8": "Strong consideration of system context with minor oversights",
+                "6": "Basic awareness of technical context with some missed considerations",
+                "4": "Limited consideration of broader technical context",
+                "2": "Poor understanding of system technical context",
+                "0": "Complete disregard for system technical context"
+            }
+        },
+        "conversational_context_awareness": {
+            "description": "The ability to maintain and utilize conversation history, remember previous user inputs, and maintain contextual continuity throughout the interaction",
+            "scoring_criteria": {
+                "10": "Perfect recall and utilization of all previous conversation context",
+                "8": "Strong awareness of conversation history with minor gaps",
+                "6": "Basic awareness of immediate context but misses some historical details",
+                "4": "Frequently loses track of previous context",
+                "2": "Poor connection to previous conversations",
+                "0": "Complete inability to maintain conversational context"
+            }
+        },
+        "file_context_awareness": {
+            "description": "Understanding and appropriate handling of provided files, attachments, and their contents, including proper interpretation of file formats and data structures",
+            "scoring_criteria": {
+                "10": "Perfect understanding and handling of all file contexts and relationships",
+                "8": "Strong grasp of file context with minor oversights",
+                "6": "Basic understanding of file context but misses some details",
+                "4": "Limited understanding of file relationships and context",
+                "2": "Poor handling of file context",
+                "0": "Complete inability to understand file context"
+            }
+        },
+        "code_style_consistency": {
+            "description": "Uniform application of coding styles, patterns, and conventions throughout the codebase, ensuring a cohesive and predictable structure",
+            "scoring_criteria": {
+                "10": "Perfect consistency in coding style throughout",
+                "8": "High consistency with very few style deviations",
+                "6": "Generally consistent code style with some variations",
+                "4": "Significant inconsistencies in coding patterns",
+                "2": "Very inconsistent coding style",
+                "0": "No consistent coding style whatsoever"
+            }
+        },
+        "communication_style_consistency": {
+            "description": "Maintaining a consistent tone, vocabulary level, and communication style throughout interactions, including appropriate formality and technical depth",
+            "scoring_criteria": {
+                "10": "Perfect consistency in communication style and tone",
+                "8": "High consistency with minor variations in tone",
+                "6": "Generally consistent communication style with some fluctuations",
+                "4": "Noticeable inconsistencies in tone and style",
+                "2": "Very inconsistent communication approach",
+                "0": "Completely erratic communication style"
+            }
+        }
+    },
+    "conciseness": {
+        "description": "Ability to convey information efficiently without unnecessary verbosity",
+        "scoring_criteria": {
+            "10": "Perfect balance of brevity and completeness",
+            "8": "Mostly concise with minimal excess information",
+            "6": "Generally concise but with some redundancy",
+            "4": "Unnecessarily verbose or repetitive",
+            "2": "Extremely wordy with substantial redundancy",
+            "0": "Complete failure in being concise"
+        }
+    },
+    "information_retention": {
+        "description": "Preservation of key information and meaning in summaries and rephrasing",
+        "scoring_criteria": {
+            "10": "Perfect retention of all key information",
+            "8": "Most important information retained with minor omissions",
+            "6": "Core message preserved but some details lost",
+            "4": "Significant information loss",
+            "2": "Major omission of key information",
+            "0": "Complete loss of essential information"
+        }
+    },
+    "creativity": {
+        "description": "Original thinking and innovative approaches in content generation",
+        "scoring_criteria": {
+            "10": "Highly innovative and original content",
+            "8": "Creative with fresh perspectives",
+            "6": "Some creative elements but mostly conventional",
+            "4": "Limited creativity or originality",
+            "2": "Mostly derivative content",
+            "0": "Complete lack of originality"
+        }
+    },
+    "accuracy": {
+        "description": "Correctness of facts, calculations, and interpretations",
+        "scoring_criteria": {
+            "10": "Perfect accuracy in all aspects",
+            "8": "Minor inaccuracies in peripheral details",
+            "6": "Generally accurate with some notable errors",
+            "4": "Significant factual errors",
+            "2": "Mostly inaccurate information",
+            "0": "Completely incorrect information"
+        }
+    },
+    "tone_appropriateness": {
+        "description": "Suitability of communication style for target audience and context",
+        "scoring_criteria": {
+            "10": "Perfect tone matching for context",
+            "8": "Generally appropriate tone with minor misalignments",
+            "6": "Somewhat appropriate but with noticeable issues",
+            "4": "Significantly mismatched tone",
+            "2": "Inappropriate tone for context",
+            "0": "Completely inappropriate tone"
+        }
+    },
+    "cultural_sensitivity": {
+        "description": "Awareness and respect for cultural nuances and differences",
+        "scoring_criteria": {
+            "10": "Perfect cultural awareness and sensitivity",
+            "8": "High cultural sensitivity with minor oversights",
+            "6": "Generally culturally appropriate with some gaps",
+            "4": "Limited cultural awareness",
+            "2": "Poor cultural sensitivity",
+            "0": "Culturally inappropriate or offensive"
+        }
+    },
+    "source_fidelity": {
+        "description": "Accuracy in representing and citing source material",
+        "scoring_criteria": {
+            "10": "Perfect representation of source material",
+            "8": "Minor deviations from source material",
+            "6": "Generally faithful with some misinterpretation",
+            "4": "Significant deviation from sources",
+            "2": "Major misrepresentation of sources",
+            "0": "Complete misrepresentation of sources"
+        }
+    }
+}

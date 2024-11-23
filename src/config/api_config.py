@@ -6,7 +6,7 @@ load_dotenv()
 class APIConfig:
     CLOUDVERSE_CONFIG = {
         "token": os.getenv("CLOUDVERSE"),  # Should be loaded from environment variable
-        "model_name": "Azure-GPT-4o-mini",
+        "model_name": "Azure-GPT-4o",
         "api_url": "https://cloudverse.freshworkscorp.com/api/chat",
         "default_params": {
             "max_tokens": 12096,

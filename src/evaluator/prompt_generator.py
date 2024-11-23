@@ -1,99 +1,64 @@
+import json
 import logging
-from typing import Dict
+from pathlib import Path
+from typing import Dict, List
+from config.config_manager import config_manager
 
 class PromptGenerator:
-    @staticmethod
-    def format_criteria(criteria: Dict, criteria_name: str) -> str:
-        return "\n".join([
-            f"Score {score}: {description}"
-            for score, description in criteria[criteria_name].items()
-        ])
+    """Generates evaluation prompts based on task type and content"""
+    
+    def __init__(self):
+        pass
 
-    @staticmethod
-    def generate_prompt(task_type: str, content: str, criteria: Dict) -> str:
-        logging.info(f"Generating prompt for task type: {task_type}")
+    def generate_prompt(self, task_type: str, content: str) -> str:
+        """
+        Generate evaluation prompt based on task type and content
         
-        prompt_generators = {
-            "conversation_evaluation": PromptGenerator.generate_conversation_evaluation_prompt,
-            "code_quality_evaluation": PromptGenerator.generate_code_evaluation_prompt,
-            # Add more task types here
-        }
-        
-        generator = prompt_generators.get(task_type)
-        if not generator:
-            raise ValueError(f"No prompt generator found for task type: {task_type}")
+        Args:
+            task_type: Type of task to evaluate
+            content: Content to evaluate
             
-        return generator(content, criteria)
-
-    @staticmethod
-    def generate_conversation_evaluation_prompt(content: str, criteria: Dict) -> str:
-        logging.info("Generating conversation evaluation prompt")
-        prompt = f"""You are an expert conversation evaluator. Evaluate the following multi-turn conversation based on these specific criteria:
-
-1. Coherence (25 points):
-{PromptGenerator.format_criteria(criteria, "coherence")}
-
-2. Relevance (25 points):
-{PromptGenerator.format_criteria(criteria, "relevance")}
-
-3. Helpfulness (25 points):
-{PromptGenerator.format_criteria(criteria, "helpfulness")}
-
-4. Context Awareness (15 points):
-{PromptGenerator.format_criteria(criteria, "context_awareness")}
-
-5. Consistency (10 points):
-{PromptGenerator.format_criteria(criteria, "consistency")}
-
-Conversation to evaluate:
-{content}
-
-Provide your evaluation in the following format exactly:
-COHERENCE_SCORE: [number]
-COHERENCE_JUSTIFICATION: [text]
-RELEVANCE_SCORE: [number]
-RELEVANCE_JUSTIFICATION: [text]
-HELPFULNESS_SCORE: [number]
-HELPFULNESS_JUSTIFICATION: [text]
-CONTEXT_AWARENESS_SCORE: [number]
-CONTEXT_AWARENESS_JUSTIFICATION: [text]
-CONSISTENCY_SCORE: [number]
-CONSISTENCY_JUSTIFICATION: [text]
-"""
-        return prompt
-
-    @staticmethod
-    def generate_code_evaluation_prompt(content: str, criteria: Dict) -> str:
-        prompt = f"""You are an expert code evaluator. Evaluate the following code based on these specific criteria:
-
-1. Readability (25 points):
-{PromptGenerator.format_criteria(criteria, "readability")}
-
-2. Maintainability (25 points):
-{PromptGenerator.format_criteria(criteria, "maintainability")}
-
-3. Efficiency (20 points):
-{PromptGenerator.format_criteria(criteria, "efficiency")}
-
-4. Best Practices (15 points):
-{PromptGenerator.format_criteria(criteria, "best_practices")}
-
-5. Error Handling (15 points):
-{PromptGenerator.format_criteria(criteria, "error_handling")}
-
-Code to evaluate:
-{content}
-
-Provide your evaluation in the following format exactly:
-READABILITY_SCORE: [number]
-READABILITY_JUSTIFICATION: [text]
-MAINTAINABILITY_SCORE: [number]
-MAINTAINABILITY_JUSTIFICATION: [text]
-EFFICIENCY_SCORE: [number]
-EFFICIENCY_JUSTIFICATION: [text]
-BEST_PRACTICES_SCORE: [number]
-BEST_PRACTICES_JUSTIFICATION: [text]
-ERROR_HANDLING_SCORE: [number]
-ERROR_HANDLING_JUSTIFICATION: [text]
-"""
-        return prompt
+        Returns:
+            Generated prompt string
+        """
+        try:
+            task_config = config_manager.get_task_config(task_type)
+            
+            # Start with the system prompt
+            prompt = task_config["system_prompt"] + "\n\n"
+            prompt += "Evaluate based on these criteria:\n"
+            
+            # Add metric descriptions with weights and scoring criteria
+            for metric, weight in task_config["weightages"].items():
+                try:
+                    metric_config = config_manager.get_metrics_config(metric)
+                    weight_percentage = int(weight * 100)
+                    
+                    prompt += f"\n{metric.upper()} ({weight_percentage}%):\n"
+                    prompt += f"Description: {metric_config['description']}\n"
+                    
+                    # Add scoring criteria if available
+                    if "scoring_criteria" in metric_config:
+                        prompt += "Scoring guide:\n"
+                        for score, desc in metric_config["scoring_criteria"].items():
+                            prompt += f"  {score}: {desc}\n"
+                            
+                except ValueError as e:
+                    logging.warning(f"Could not find config for metric {metric}: {str(e)}")
+                    continue
+            
+            # Add content section
+            prompt += f"\nContent to evaluate:\n{content}\n\n"
+            
+            # Add response format instructions
+            prompt += "Provide your evaluation in the following format exactly:\n"
+            for metric in task_config["weightages"].keys():
+                prompt += f"{metric.upper()}_SCORE: [score between 0-10]\n"
+                prompt += f"{metric.upper()}_JUSTIFICATION: [detailed explanation]\n"
+            
+            logging.debug(f"Generated prompt for task type {task_type}")
+            return prompt
+            
+        except Exception as e:
+            logging.error(f"Error generating prompt: {str(e)}")
+            raise ValueError(f"Failed to generate prompt: {str(e)}")

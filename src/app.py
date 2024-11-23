@@ -21,20 +21,28 @@ def evaluate():
             return jsonify({"error": "No content provided"}), 400
             
         num_evaluations = data.get('num_evaluations', DEFAULT_EVALUATIONS)
-        task_type = data.get('task_type', 'conversation_evaluation')
+        task_type = data.get('task_type')  # Now optional
+        prompt = data.get('prompt')  # Optional prompt for task identification
+        
+        # Get model name from header or use default
+        model_name = request.headers.get('X-Model-Name')
         
         try:
             evaluator = EvaluatorRegistry.get_evaluator(
                 task_type=task_type,
-                num_evaluations=num_evaluations
+                num_evaluations=num_evaluations,
+                model_name=model_name
             )
         except ValueError as e:
             logging.error(str(e))
             return jsonify({"error": str(e)}), 400
             
-        results = evaluator.evaluate(data['content'])
+        results = evaluator.evaluate(
+            content=data['content'],
+            prompt=prompt
+        )
         
-        logging.info(f"Evaluation completed successfully for task type: {task_type}")
+        logging.info(f"Evaluation completed successfully for task type: {results['evaluation_metadata']['task_type']}")
         return jsonify(results)
         
     except Exception as e:
