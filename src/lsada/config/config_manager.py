@@ -2,6 +2,8 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any
+from lsada.pool import task_pool
+from lsada.pool import metrics_pool
 
 class ConfigManager:
     """Singleton class to manage all configuration loading"""
@@ -23,11 +25,11 @@ class ConfigManager:
         """Load all configuration files"""
         try:
             # Load task pool
-            with open(self._base_path / "pool" / "task_pool.json", "r") as f:
+            with open(task_pool, "r") as f:
                 self.task_pool = json.load(f)
                 
             # Load metrics pool
-            with open(self._base_path / "pool" / "metrics_pool.json", "r") as f:
+            with open(metrics_pool, "r") as f:
                 self.metrics_pool = json.load(f)
                 
             logging.info("Successfully loaded all configuration files")

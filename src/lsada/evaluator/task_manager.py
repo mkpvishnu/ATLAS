@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 import logging
-from config.config_manager import config_manager
-from models.llm_manager import LLMManager
+from lsada.config.config_manager import config_manager
+from lsada.models.llm_manager import LLMManager
 
 class TaskManager:
     """Manages task types and their configurations"""

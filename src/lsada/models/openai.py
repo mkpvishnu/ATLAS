@@ -1,6 +1,6 @@
 import logging
 from typing import Optional, Dict, Any
-import openai
+from openai import OpenAI
 
 from .llm_manager import BaseLLMClient
 
@@ -28,8 +28,8 @@ class OpenAILLMClient(BaseLLMClient):
         self.system_instruction = system_instruction
         self.config = kwargs
         
-        # Configure OpenAI
-        openai.api_key = api_key
+        # Initialize OpenAI client
+        self.client = OpenAI(api_key=api_key)
         
         logging.info(f"Initialized OpenAI client with model: {self.model_name}")
     
@@ -49,29 +49,22 @@ class OpenAILLMClient(BaseLLMClient):
         """
         try:
             # Merge configs
-            params = self.config.copy()
-            params.update(kwargs)
+            config = {**self.config, **kwargs}
             
             # Prepare messages
             messages = []
             if self.system_instruction:
-                messages.append({
-                    "role": "system",
-                    "content": self.system_instruction
-                })
-            messages.append({
-                "role": "user",
-                "content": prompt
-            })
+                messages.append({"role": "system", "content": self.system_instruction})
+            messages.append({"role": "user", "content": prompt})
             
-            # Make API call
-            response = openai.ChatCompletion.create(
+            # Call API
+            response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=messages,
-                **params
+                **config
             )
             
-            # Extract and return text
+            # Extract and return response text
             return response.choices[0].message.content.strip()
             
         except Exception as e:
@@ -89,19 +82,9 @@ class OpenAILLMClient(BaseLLMClient):
             True if valid, False otherwise
         """
         try:
-            # Store current key
-            current_key = openai.api_key
-            
-            # Try validation
-            openai.api_key = api_key
-            models = openai.Model.list()
-            valid = len(models.data) > 0
-            
-            # Restore key
-            openai.api_key = current_key
-            
-            return valid
-            
+            client = OpenAI(api_key=api_key)
+            client.models.list()
+            return True
         except Exception as e:
             logging.error(f"Error validating API key: {str(e)}")
             return False

@@ -2,8 +2,8 @@ from typing import List, Dict, Tuple, Any
 import statistics
 import numpy as np
 import logging
-from config.config_manager import config_manager
-from evaluator.task_manager import TaskManager
+from lsada.config.config_manager import config_manager
+from lsada.evaluator.task_manager import TaskManager
 
 class MetricsCalculator:
     """Class for calculating metrics and scores"""

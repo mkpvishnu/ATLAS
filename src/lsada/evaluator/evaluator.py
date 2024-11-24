@@ -5,9 +5,9 @@ from typing import Dict, Optional, List
 from .base_evaluator import BaseEvaluator
 from .prompt_generator import PromptGenerator
 from .task_manager import TaskManager
-from utils.metrics import MetricsCalculator
-from utils.llm_parser import LLMResponseParser
-from models.llm_manager import BaseLLMClient
+from lsada.utils.metrics import MetricsCalculator
+from lsada.utils.llm_parser import LLMResponseParser
+from lsada.models.llm_manager import BaseLLMClient
 
 class Evaluator(BaseEvaluator):
     """Base evaluator class"""

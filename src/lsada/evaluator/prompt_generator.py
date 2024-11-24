@@ -2,7 +2,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, List
-from config.config_manager import config_manager
+from lsada.config.config_manager import config_manager
 
 class PromptGenerator:
     """Generates evaluation prompts based on task type and content"""

@@ -37,7 +37,7 @@ class LLMManager:
             
             # Import the appropriate client class
             client_class_name = cls._supported_vendors[vendor]
-            module = __import__(f"models.{vendor}", fromlist=[client_class_name])
+            module = __import__(f"lsada.models.{vendor}", fromlist=[client_class_name])
             client_class = getattr(module, client_class_name)
             
             # Create client instance

@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify
 import logging
-from evaluator.evaluator import Evaluator
-from models.llm_manager import LLMManager
-from evaluator.task_manager import TaskManager
+from lsada.evaluator.evaluator import Evaluator
+from lsada.models.llm_manager import LLMManager
+from lsada.evaluator.task_manager import TaskManager
 from dotenv import load_dotenv
 import os
 
