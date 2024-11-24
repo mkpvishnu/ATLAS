@@ -1,67 +1,107 @@
-import json
 import logging
-from pathlib import Path
 from typing import Optional
-from models.cloudverse import CloudverseClient
-from config.api_config import APIConfig
+from models.llm_manager import llm_manager
+from evaluator.task_manager import TaskManager
 
 class TaskIdentifier:
-    def __init__(self):
-        # Load the task pool
-        base_path = Path(__file__).parent.parent
-        with open(base_path / "pool" / "task_pool.json", "r") as f:
-            self.task_pool = json.load(f)
+    """Identifies task type from content using LLM"""
+    
+    def __init__(self, vendor: str = "cloudverse", api_key: Optional[str] = None):
+        """
+        Initialize task identifier
         
-        # Initialize LLM client for task identification
-        config = APIConfig.CLOUDVERSE_CONFIG
-        self.llm_client = CloudverseClient(
-            token=config["token"],
-            model_name="Azure-GPT-4o-mini"  # Always use mini for task identification
-        )
-
-    def identify_task_from_prompt(self, prompt: str) -> str:
-        """Identify task type by asking LLM to analyze the prompt."""
+        Args:
+            vendor: LLM vendor to use
+            api_key: API key for vendor
+        """
+        if not api_key:
+            raise ValueError("API key is required for task identification")
+            
+        self.llm_client = llm_manager.get_client(vendor, api_key)
+        self.supported_tasks = TaskManager.get_supported_tasks()
+        
+    def identify_task_type(self, content: str, custom_prompt: Optional[str] = None) -> str:
+        """
+        Identify task type from content
+        
+        Args:
+            content: Content to analyze
+            custom_prompt: Optional custom prompt for task identification
+            
+        Returns:
+            Identified task type
+            
+        Raises:
+            ValueError: If task type cannot be identified
+        """
         try:
-            identification_prompt = f"""Analyze the following prompt and identify which type of task it is requesting. The task types are:
-
-{self._format_task_types()}
-
-Respond with ONLY the task type that best matches the prompt.
-
-Prompt to analyze:
-{prompt}
-
-Task type:"""
-
-            response = self.llm_client.generate_response(
-                prompt=identification_prompt,
-                max_tokens=50,
-                temperature=0,
-                top_p=1
-            )
+            # Get task types for prompt
+            task_types = list(self.supported_tasks.keys())
+            task_descriptions = {
+                task: config.get("description", "No description available")
+                for task, config in self.supported_tasks.items()
+            }
             
-            # Clean and validate response
-            task_type = response.strip().lower()
-            task_type = task_type.replace('task type:', '').strip()
+            # Generate identification prompt
+            if custom_prompt:
+                prompt = custom_prompt
+            else:
+                prompt = self._generate_identification_prompt(content, task_types, task_descriptions)
             
-            if task_type in self.task_pool["task_types"]:
-                logging.info(f"Identified task type from prompt: {task_type}")
-                return task_type
+            # Get response from LLM
+            params = llm_manager.get_default_params("cloudverse")
+            response = self.llm_client.generate_response(prompt, **params)
             
-            logging.warning(f"LLM returned invalid task type: {task_type}")
-            return "conversation_evaluation"  # Default fallback
+            # Parse response
+            task_type = self._parse_task_type(response, task_types)
+            if not task_type:
+                raise ValueError("Could not identify task type from LLM response")
+                
+            return task_type
             
         except Exception as e:
             logging.error(f"Error identifying task type: {str(e)}")
-            return "conversation_evaluation"  # Default fallback
+            # Fall back to default task type
+            logging.info("Falling back to default task type")
+            return TaskManager.get_default_task_type()
+            
+    def _generate_identification_prompt(self, content: str, task_types: list, task_descriptions: dict) -> str:
+        """Generate prompt for task identification"""
+        task_options = "\n".join([
+            f"- {task}: {task_descriptions[task]}"
+            for task in task_types
+        ])
+        
+        return f"""Please analyze the following content and identify the most appropriate task type for evaluation.
+Available task types:
+{task_options}
 
-    def _format_task_types(self) -> str:
-        """Format available task types with their descriptions."""
-        task_types = []
-        for task_type, config in self.task_pool["task_types"].items():
-            description = config.get("description", "No description available")
-            task_types.append(f"- {task_type}: {description}")
-        return "\n".join(task_types)
+Content to analyze:
+{content}
 
+Please respond with ONLY the task type name that best matches the content. For example: conversation_evaluation
+Do not include any other text or explanation in your response."""
+            
+    def _parse_task_type(self, response: str, valid_tasks: list) -> Optional[str]:
+        """
+        Parse task type from LLM response
+        
+        Args:
+            response: LLM response text
+            valid_tasks: List of valid task types
+            
+        Returns:
+            Task type if found, None otherwise
+        """
+        # Clean and normalize response
+        task_type = response.strip().lower()
+        
+        # Check if response matches any valid task
+        for valid_task in valid_tasks:
+            if valid_task.lower() in task_type:
+                return valid_task
+                
+        return None
+        
 # Singleton instance
-task_identifier = TaskIdentifier()
+task_identifier = TaskIdentifier(vendor="cloudverse", api_key="your_api_key")

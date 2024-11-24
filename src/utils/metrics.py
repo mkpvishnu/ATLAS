@@ -56,47 +56,53 @@ class MetricsCalculator:
 
     def aggregate_scores(self, evaluations: List[Dict], task_type: str) -> Dict:
         """Aggregate scores with outlier detection."""
-        logging.info("Aggregating scores with outlier detection")
-        aggregated = {}
-        metrics = self.get_metrics_for_task(task_type)
-        weightages = self.task_pool["task_types"][task_type]["weightages"]
-        
-        for metric in metrics:
-            score_key = f"{metric}_score"
-            justification_key = f"{metric}_justification"
+        try:
             
-            scores = [eval.get(score_key, 0) for eval in evaluations]
-            justifications = [eval.get(justification_key, "") for eval in evaluations]
+            logging.info("Aggregating scores with outlier detection")
+            aggregated = {"Scores": {}}
+            metrics = self.get_metrics_for_task(task_type)
+            weightages = self.task_pool["task_types"][task_type]["weightages"]
             
-            # Remove outliers using IQR method
-            q1 = np.percentile(scores, 25)
-            q3 = np.percentile(scores, 75)
-            iqr = q3 - q1
-            filtered_scores = [
-                s for s in scores 
-                if (q1 - 1.5 * iqr) <= s <= (q3 + 1.5 * iqr)
-            ]
+            for metric in metrics:
+                score_key = f"{metric}_score"
+                justification_key = f"{metric}_justification"
+                
+                scores = [eval.get("raw_scores", 0).get(metric) for eval in evaluations]
+                justifications = [eval.get("justifications", "").get(metric) for eval in evaluations]
+                
+                # Remove outliers using IQR method
+                q1 = np.percentile(scores, 25)
+                q3 = np.percentile(scores, 75)
+                iqr = q3 - q1
+                filtered_scores = [
+                    s for s in scores 
+                    if (q1 - 1.5 * iqr) <= s <= (q3 + 1.5 * iqr)
+                ]
+                
+                median_score = statistics.median(filtered_scores) if filtered_scores else 0
+                normalized_score = self.normalize_score(median_score, metric)
+                weighted_score = normalized_score * weightages[metric]
+                print(f"Metric: {metric}, Score: {median_score}, Normalized Score: {normalized_score}, Weighted Score: {weighted_score}")
+                
+                aggregated["Scores"][metric] = {
+                    "score": median_score,
+                    "raw_scores": scores,
+                    "filtered_scores": filtered_scores,
+                    "variance": statistics.variance(filtered_scores) if len(filtered_scores) > 1 else 0,
+                    "justifications": justifications[:3],
+                    "normalized_score": normalized_score,
+                    "weighted_score": weighted_score,
+                    "weight": weightages[metric]
+                }
             
-            median_score = statistics.median(filtered_scores) if filtered_scores else 0
-            normalized_score = self.normalize_score(median_score, metric)
-            weighted_score = normalized_score * weightages[metric]
+            # Add total weighted score
+            total_weighted_score = sum(metric_data["weighted_score"] for metric_data in aggregated["Scores"].values())
+            aggregated["total_weighted_score"] = total_weighted_score
             
-            aggregated[metric] = {
-                "score": median_score,
-                "raw_scores": scores,
-                "filtered_scores": filtered_scores,
-                "variance": statistics.variance(filtered_scores) if len(filtered_scores) > 1 else 0,
-                "justifications": justifications[:3],
-                "normalized_score": normalized_score,
-                "weighted_score": weighted_score,
-                "weight": weightages[metric]
-            }
-        
-        # Add total weighted score
-        total_weighted_score = sum(metric_data["weighted_score"] for metric_data in aggregated.values())
-        aggregated["total_weighted_score"] = total_weighted_score
-        
-        return aggregated
+            return aggregated
+        except Exception as e:
+            logging.error(f"Error in Aggregation: {str(e)}")
+            raise
 
     def normalize_score(self, score: float, metric: str) -> float:
         """Normalize a score based on the maximum possible score for the metric."""

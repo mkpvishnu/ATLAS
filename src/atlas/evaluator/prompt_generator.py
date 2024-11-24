@@ -1,28 +1,25 @@
-import json
-import logging
-from pathlib import Path
-from typing import Dict, List
-from config.config_manager import config_manager
+from typing import Dict, Optional
+from ..config.models import EvaluationConfig
+from ..config.config_manager import config_manager
 
 class PromptGenerator:
     """Generates evaluation prompts based on task type and content"""
     
-    def __init__(self):
-        pass
-
-    def generate_prompt(self, task_type: str, content: str, include_justification: bool = True) -> str:
+    def __init__(self, config: EvaluationConfig):
+        self.config = config
+        
+    def generate_prompt(self, content: str) -> str:
         """
         Generate evaluation prompt based on task type and content
         
         Args:
-            task_type: Type of task to evaluate
             content: Content to evaluate
-            include_justification: Whether to include justification in output
             
         Returns:
             Generated prompt string
         """
         try:
+            task_type = self.config.task_type
             task_config = config_manager.get_task_config(task_type)
             
             # Start with the system prompt
@@ -55,12 +52,18 @@ class PromptGenerator:
             prompt += "Provide your evaluation in the following format exactly:\n"
             for metric in task_config["weightages"].keys():
                 prompt += f"{metric.upper()}_SCORE: [score between 0-10]\n"
-                if include_justification:
+                if self.config.include_justification:
                     prompt += f"{metric.upper()}_JUSTIFICATION: [detailed explanation]\n"
             
-            logging.debug(f"Generated prompt for task type {task_type}")
             return prompt
             
         except Exception as e:
             logging.error(f"Error generating prompt: {str(e)}")
             raise ValueError(f"Failed to generate prompt: {str(e)}")
+            
+    @staticmethod
+    def get_default_system_prompt(task_type: str) -> str:
+        """Get the default system prompt for a task type"""
+        return f"""You are an expert evaluator specialized in assessing {task_type}. 
+        Your task is to evaluate the given content based on the specified criteria.
+        Provide numerical scores and, if requested, detailed justifications for each metric."""
