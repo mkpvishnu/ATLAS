@@ -7,8 +7,7 @@ from .prompt_generator import PromptGenerator
 from .task_manager import TaskManager
 from utils.metrics import MetricsCalculator
 from utils.llm_parser import LLMResponseParser
-from utils.task_identifier import task_identifier
-from models.llm_manager import llm_manager
+from models.llm_manager import BaseLLMClient
 
 class Evaluator(BaseEvaluator):
     """Base evaluator class"""
@@ -17,10 +16,7 @@ class Evaluator(BaseEvaluator):
         self,
         task_type: Optional[str] = None,
         num_evaluations: int = 1,
-        include_justification: bool = True,
-        vendor: str = "cloudverse",
-        api_key: Optional[str] = None,
-        model_name: Optional[str] = None
+        include_justification: bool = True
     ):
         """
         Initialize evaluator
@@ -29,35 +25,25 @@ class Evaluator(BaseEvaluator):
             task_type: Type of task to evaluate. If None, will use default
             num_evaluations: Number of evaluations to perform
             include_justification: Whether to include justifications in output
-            vendor: LLM vendor to use (e.g., 'cloudverse', 'openai')
-            api_key: API key for LLM vendor
-            model_name: Name of model to use. If None, will use default
         """
         self.task_type = TaskManager.validate_task_type(task_type)
         self.num_evaluations = num_evaluations
         self.include_justification = include_justification
-        self.vendor = vendor.lower()
-        self.api_key = api_key
-        self.model_name = model_name
         
         # Initialize components
         self.prompt_generator = PromptGenerator()
         self.llm_parser = LLMResponseParser()
         self.metrics_calculator = MetricsCalculator()
         
-        # Get LLM client
-        if not api_key:
-            raise ValueError("API key is required")
-        self.llm_client = llm_manager.get_client(vendor, api_key, model_name)
-        
         logging.info(f"Initialized evaluator with {num_evaluations} evaluations for {self.task_type}")
     
-    def evaluate(self, content: str) -> Dict:
+    def evaluate(self, content: str, llm_client: BaseLLMClient) -> Dict:
         """
-        Evaluate content
+        Evaluate content using provided LLM client
         
         Args:
             content: Content to evaluate
+            llm_client: Initialized LLM client to use for evaluation
             
         Returns:
             Dict containing evaluation results
@@ -65,23 +51,25 @@ class Evaluator(BaseEvaluator):
         try:
             # Identify task type from prompt if not set
             if not self.task_type:
-                self.task_type = task_identifier.identify_task_type(content)
+                self.task_type = TaskManager.identify_task_type(content)
                 logging.info(f"Identified task type: {self.task_type}")
             
             all_evaluations = []
             for _ in range(self.num_evaluations):
                 # Generate evaluation prompt
                 evaluation_prompt = self.prompt_generator.generate_prompt(
-                    content,
                     self.task_type,
+                    content,
                     include_justification=self.include_justification
                 )
                 
                 # Get evaluation from LLM
                 evaluation = self._get_llm_evaluation(
+                    llm_client,
                     evaluation_prompt,
                     include_justification=self.include_justification
                 )
+                print(f"evaluation: {evaluation}")
                 all_evaluations.append(evaluation)
             
             # Aggregate results
@@ -89,16 +77,16 @@ class Evaluator(BaseEvaluator):
                 all_evaluations,
                 self.task_type
             )
+            if self.include_justification:
+                metrics = TaskManager.get_metrics_for_task(self.task_type)
+                for metric in metrics:
+                    result["Scores"][metric]["justifications"] = [evaluation["justifications"][metric] for evaluation in all_evaluations]
             
             # Add metadata
             result["metadata"] = {
                 "task_type": self.task_type,
                 "num_evaluations": self.num_evaluations,
-                "timestamp": datetime.utcnow().isoformat(),
-                "model": {
-                    "vendor": self.vendor,
-                    "name": self.model_name
-                }
+                "timestamp": datetime.utcnow().isoformat()
             }
             
             return result
@@ -107,14 +95,11 @@ class Evaluator(BaseEvaluator):
             logging.error(f"Error in evaluation: {str(e)}")
             raise
 
-    def _get_llm_evaluation(self, prompt: str, include_justification: bool = True) -> Dict:
+    def _get_llm_evaluation(self, llm_client: BaseLLMClient, prompt: str, include_justification: bool = True) -> Dict:
         """Get evaluation from LLM and parse the response"""
         try:
-            # Get default params for vendor
-            params = llm_manager.get_default_params(self.vendor)
-            
             # Generate response
-            response = self.llm_client.generate_response(prompt, **params)
+            response = llm_client.generate_response(prompt)
             
             # Parse response
             return self.llm_parser.parse_evaluation_response(

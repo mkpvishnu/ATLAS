@@ -1,5 +1,5 @@
-from .cloudverse import CloudverseClient
-from .openai_client import OpenAIClient
+from .cloudverse import CloudverseLLMClient
+from .openai import OpenAILLMClient
 from .anthropic import AnthropicClient
 
 class ModelFactory:
@@ -8,7 +8,7 @@ class ModelFactory:
         if provider == 'cloudverse':
             return CloudverseClient(token, model_name)
         elif provider == 'openai':
-            return OpenAIClient(token, model_name)
+            return OpenAILLMClient(token, model_name)
         elif provider == 'anthropic':
             return AnthropicClient(token, model_name)
         else:

@@ -35,7 +35,7 @@ class PromptGenerator:
                     metric_config = config_manager.get_metrics_config(metric)
                     weight_percentage = int(weight * 100)
                     
-                    prompt += f"\n{metric.upper()} ({weight_percentage}%):\n"
+                    prompt += f"\n{metric.upper()}:\n"
                     prompt += f"Description: {metric_config['description']}\n"
                     
                     # Add scoring criteria if available
@@ -54,11 +54,12 @@ class PromptGenerator:
             # Add response format instructions
             prompt += "Provide your evaluation in the following format exactly:\n"
             for metric in task_config["weightages"].keys():
-                prompt += f"{metric.upper()}_SCORE: [score between 0-10]\n"
+                prompt += f"{metric.upper()}_SCORE: [number]\n"
                 if include_justification:
-                    prompt += f"{metric.upper()}_JUSTIFICATION: [detailed explanation]\n"
+                    prompt += f"{metric.upper()}_JUSTIFICATION: [text]\n"
             
             logging.debug(f"Generated prompt for task type {task_type}")
+            print(f"Generated prompt for task type {task_type}:\n{prompt}")  # Print prompt)
             return prompt
             
         except Exception as e:

@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 import logging
-from evaluator.registry import EvaluatorRegistry
+from evaluator.evaluator import Evaluator
+from models.llm_manager import LLMManager
+from evaluator.task_manager import TaskManager
 from dotenv import load_dotenv
 import os
 
@@ -33,6 +35,14 @@ def get_api_key(vendor: str) -> str:
         
     return api_key
 
+# Initialize LLM client for task identification
+try:
+    api_key = get_api_key(DEFAULT_VENDOR)
+    TaskManager.initialize_llm_client(DEFAULT_VENDOR, api_key)
+    logging.info("Initialized LLM client for task identification")
+except Exception as e:
+    logging.error(f"Error initializing task identification: {str(e)}")
+
 @app.route('/evaluate', methods=['POST'])
 def evaluate():
     try:
@@ -48,6 +58,7 @@ def evaluate():
         num_evaluations = data.get('num_evaluations', DEFAULT_EVALUATIONS)
         task_type = data.get('task_type')  # Optional
         prompt = data.get('prompt')  # Optional
+        include_justification = data.get('include_justification', True)  # Optional
         
         # Get vendor and model configuration
         vendor = request.headers.get('X-Vendor', DEFAULT_VENDOR).lower()
@@ -55,22 +66,26 @@ def evaluate():
         
         try:
             # Get API key for vendor
-            print(vendor)
             api_key = get_api_key(vendor)
             
-            # Create evaluator
-            evaluator = EvaluatorRegistry.get_evaluator(
-                task_type=task_type,
-                num_evaluations=num_evaluations,
+            # Initialize LLM client
+            llm_client = LLMManager.initialize_client(
                 vendor=vendor,
                 api_key=api_key,
                 model_name=model_name
             )
             
-            # Perform evaluation
-            result = evaluator.evaluate(content)
+            # Create evaluator
+            evaluator = Evaluator(
+                task_type=task_type,
+                num_evaluations=num_evaluations,
+                include_justification=include_justification
+            )
             
-            return jsonify(result)
+            # Perform evaluation
+            result = evaluator.evaluate(content, llm_client)
+            
+            return result
             
         except ValueError as e:
             logging.error(str(e))
@@ -85,4 +100,4 @@ def health_check():
     return jsonify({"status": "healthy"}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True)

@@ -1,21 +1,9 @@
-from typing import Dict, Optional
-import logging
 from abc import ABC, abstractmethod
-from enum import Enum
-
-class ModelVendor(Enum):
-    CLOUDVERSE = "cloudverse"
-    OPENAI = "openai"
-    
-    @classmethod
-    def from_str(cls, vendor: str) -> "ModelVendor":
-        try:
-            return cls(vendor.lower())
-        except ValueError:
-            raise ValueError(f"Unsupported vendor: {vendor}. Supported vendors: {[v.value for v in cls]}")
+import logging
+from typing import Dict, Optional, Any
 
 class BaseLLMClient(ABC):
-    """Base class for LLM clients"""
+    """Abstract base class for LLM clients"""
     
     @abstractmethod
     def generate_response(self, prompt: str, **kwargs) -> str:
@@ -23,78 +11,85 @@ class BaseLLMClient(ABC):
         pass
     
     @abstractmethod
-    def validate_api_key(self) -> bool:
+    def validate_api_key(self, api_key: str) -> bool:
         """Validate API key"""
         pass
 
 class LLMManager:
-    """Manages LLM clients and configurations"""
+    """Manager class for LLM clients"""
     
-    _default_params = {
-        ModelVendor.CLOUDVERSE: {
-            "temperature": 0,
-            "max_tokens": 12000,
-            "top_p": 1.0,
-            "frequency_penalty": 0.0,
-            "presence_penalty": 0.0
-        },
-        ModelVendor.OPENAI: {
-            "temperature": 0.7,
-            "max_tokens": 1000,
-            "top_p": 1.0,
-            "frequency_penalty": 0.0,
-            "presence_penalty": 0.0
-        }
+    # Registry of supported vendors and their client classes
+    _supported_vendors = {
+        "cloudverse": "CloudverseLLMClient",
+        "openai": "OpenAILLMClient"
     }
     
-    def __init__(self):
-        self._clients = {}
-        
-    def get_client(self, vendor: str, api_key: str, model_name: Optional[str] = None) -> BaseLLMClient:
-        """
-        Get or create LLM client for vendor
-        
-        Args:
-            vendor: Vendor name (e.g., 'cloudverse', 'openai')
-            api_key: API key for vendor
-            model_name: Optional model name
-            
-        Returns:
-            LLM client instance
-            
-        Raises:
-            ValueError: If vendor is not supported
-        """
-        vendor_enum = ModelVendor.from_str(vendor)
-        
-        # Create new client if needed
-        if vendor_enum not in self._clients or self._clients[vendor_enum].api_key != api_key:
-            client = self._create_client(vendor_enum, api_key, model_name)
-            self._clients[vendor_enum] = client
-            
-        return self._clients[vendor_enum]
-    
-    def _create_client(self, vendor: ModelVendor, api_key: str, model_name: Optional[str]) -> BaseLLMClient:
-        """Create new LLM client"""
-        if vendor == ModelVendor.CLOUDVERSE:
-            from .cloudverse import CloudverseClient
-            return CloudverseClient(api_key, model_name)
-        elif vendor == ModelVendor.OPENAI:
-            from .openai import OpenAIClient
-            return OpenAIClient(api_key, model_name)
-        else:
-            raise ValueError(f"Unsupported vendor: {vendor}")
-    
     @classmethod
-    def get_default_params(cls, vendor: str) -> Dict:
+    def initialize_client(cls, vendor: str, api_key: str, 
+                        model_name: Optional[str] = None,
+                        system_instruction: Optional[str] = None,
+                        **kwargs) -> BaseLLMClient:
+        """Initialize an LLM client for the specified vendor"""
+        try:
+            vendor = vendor.lower()
+            if vendor not in cls._supported_vendors:
+                raise ValueError(f"Unsupported vendor: {vendor}")
+            
+            # Import the appropriate client class
+            client_class_name = cls._supported_vendors[vendor]
+            module = __import__(f"models.{vendor}", fromlist=[client_class_name])
+            client_class = getattr(module, client_class_name)
+            
+            # Create client instance
+            client = client_class(
+                api_key=api_key,
+                model_name=model_name,
+                system_instruction=system_instruction,
+                **kwargs
+            )
+            
+            # Validate API key
+            if not client.validate_api_key(api_key):
+                raise ValueError(f"Invalid API key for vendor: {vendor}")
+            
+            logging.info(f"Initialized {vendor} LLM client")
+            return client
+            
+        except Exception as e:
+            logging.error(f"Error initializing LLM client: {str(e)}")
+            raise
+    
+    @staticmethod
+    def get_default_params(vendor: str) -> Dict[str, Any]:
         """Get default parameters for vendor"""
-        vendor_enum = ModelVendor.from_str(vendor)
-        return cls._default_params[vendor_enum].copy()
-    
-    @classmethod
-    def update_default_params(cls, vendor: str, params: Dict) -> None:
-        """Update default parameters for vendor"""
-        vendor_enum = ModelVendor.from_str(vendor)
-        cls._default_params[vendor_enum].update(params)
+        defaults = {
+            "cloudverse": {
+                "temperature": 0,
+                "max_tokens": 12000,
+                "top_p": 1,
+                "frequency_penalty": 0.0,
+                "presence_penalty": 0.0
+            },
+            "openai": {
+                "temperature": 0.7,
+                "max_tokens": 1000,
+                "model": "gpt-3.5-turbo",
+                "top_p": 1,
+                "frequency_penalty": 0.0,
+                "presence_penalty": 0.0
+            }
+        }
         
+        vendor = vendor.lower()
+        if vendor not in defaults:
+            raise ValueError(f"No default parameters for vendor: {vendor}")
+            
+        return defaults[vendor].copy()
+    
+    @staticmethod
+    def register_vendor(vendor_name: str, client_class_name: str) -> None:
+        """Register a new vendor and its client class"""
+        LLMManager._supported_vendors[vendor_name.lower()] = client_class_name
+        logging.info(f"Registered new vendor: {vendor_name}")
+
 llm_manager = LLMManager()  # Singleton instance

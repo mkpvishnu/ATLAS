@@ -34,26 +34,19 @@ class ConfigManager:
         except Exception as e:
             logging.error(f"Error loading configuration files: {str(e)}")
             raise
-            
-    def get_task_weights(self, task_type: str) -> Dict[str, float]:
-        """Get weights for a specific task type"""
-        if task_type not in self.task_pool["task_types"]:
-            raise ValueError(f"Unknown task type: {task_type}")
-            
-        return self.task_pool["task_types"][task_type]["weightages"]
         
     def get_metrics_config(self, metric_name: str) -> Dict[str, Any]:
         """Get configuration for a specific metric"""
         # Search through all metric groups
-        for metric_group in self.metrics_pool.values():
-            if metric_name in metric_group:
-                return metric_group[metric_name]
+        if metric_name in self.metrics_pool.keys():
+            return self.metrics_pool[metric_name]
                 
         raise ValueError(f"Unknown metric: {metric_name}")
         
     def get_task_config(self, task_type: str) -> Dict[str, Any]:
         """Get configuration for a specific task type"""
-        if task_type not in self.task_pool["task_types"]:
+        if task_type not in self.task_pool["task_types"].keys():
+            print(self.task_pool["task_types"].keys())
             raise ValueError(f"Unknown task type: {task_type}")
             
         return self.task_pool["task_types"][task_type]
