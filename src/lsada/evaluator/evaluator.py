@@ -69,7 +69,6 @@ class Evaluator(BaseEvaluator):
                     evaluation_prompt,
                     include_justification=self.include_justification
                 )
-                print(f"evaluation: {evaluation}")
                 all_evaluations.append(evaluation)
             
             # Aggregate results

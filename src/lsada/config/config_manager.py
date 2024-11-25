@@ -48,7 +48,7 @@ class ConfigManager:
     def get_task_config(self, task_type: str) -> Dict[str, Any]:
         """Get configuration for a specific task type"""
         if task_type not in self.task_pool["task_types"].keys():
-            print(self.task_pool["task_types"].keys())
+            logging.info(self.task_pool["task_types"].keys())
             raise ValueError(f"Unknown task type: {task_type}")
             
         return self.task_pool["task_types"][task_type]

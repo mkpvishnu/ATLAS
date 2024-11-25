@@ -48,10 +48,6 @@ class LLMManager:
                 **kwargs
             )
             
-            # Validate API key
-            if not client.validate_api_key(api_key):
-                raise ValueError(f"Invalid API key for vendor: {vendor}")
-            
             logging.info(f"Initialized {vendor} LLM client")
             return client
             

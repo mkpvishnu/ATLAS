@@ -88,3 +88,4 @@ class OpenAILLMClient(BaseLLMClient):
         except Exception as e:
             logging.error(f"Error validating API key: {str(e)}")
             return False
+

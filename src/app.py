@@ -21,7 +21,7 @@ load_dotenv()
 def get_api_key(vendor: str) -> str:
     """Get API key for vendor from environment variables"""
     key_mapping = {
-        "cloudverse": "CLOUDVERSE_API_KEY",
+        "cloudverse": "CLOUDVERSE_API",
         "openai": "OPENAI_API_KEY"
     }
     
@@ -93,6 +93,51 @@ def evaluate():
             
     except Exception as e:
         logging.error(f"Error in evaluation endpoint: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+@app.route('/tasks', methods=['GET'])
+def list_tasks():
+    try:
+        supported_tasks = TaskManager.get_supported_tasks_with_descriptions()
+        return jsonify({"supported_tasks": supported_tasks})
+    except Exception as e:
+        logging.error(f"Error in list tasks endpoint: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+@app.route('/tasks/<task_type>', methods=['GET'])
+def get_task_details(task_type):
+    try:
+        details = TaskManager.get_details_for_task(task_type)
+        return jsonify({
+            "task_type": task_type,
+            "details": details
+        })
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logging.error(f"Error in task details endpoint: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+@app.route('/identify', methods=['POST'])
+def identify_task():
+    try:
+        data = request.json
+        if not data or 'content' not in data:
+            return jsonify({"error": "No content provided"}), 400
+            
+        content = data['content']
+        
+        # Get vendor and initialize client
+        vendor = request.headers.get('X-Vendor', DEFAULT_VENDOR).lower()
+        api_key = get_api_key(vendor)
+        llm_client = LLMManager.initialize_client(vendor=vendor, api_key=api_key)
+        
+        task_type = TaskManager.identify_task_type(content, llm_client)
+        return jsonify({"task_type": task_type})
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logging.error(f"Error in task identification endpoint: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
 @app.route('/health', methods=['GET'])

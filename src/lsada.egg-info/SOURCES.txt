@@ -15,7 +15,6 @@ src/lsada.egg-info/dependency_links.txt
 src/lsada.egg-info/requires.txt
 src/lsada.egg-info/top_level.txt
 src/lsada/config/__init__.py
-src/lsada/config/api_config.py
 src/lsada/config/config_manager.py
 src/lsada/evaluator/__init__.py
 src/lsada/evaluator/base_evaluator.py

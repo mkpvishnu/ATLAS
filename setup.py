@@ -8,7 +8,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name="lsada",
-    version="1.5.0",
+    version="1.9.1",
     packages=find_namespace_packages(where="src"),
     package_dir={"": "src"},
     package_data={

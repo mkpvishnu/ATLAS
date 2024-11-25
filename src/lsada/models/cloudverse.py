@@ -36,7 +36,7 @@ class CloudverseLLMClient(BaseLLMClient):
         # Set up session
         self.session = requests.Session()
         self.session.headers.update({
-            "Authorization": f"Bearer {api_key}",
+            "Authorization": api_key,
             "Content-Type": "application/json"
         })
         

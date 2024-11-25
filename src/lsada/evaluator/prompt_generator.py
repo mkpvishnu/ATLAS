@@ -58,8 +58,8 @@ class PromptGenerator:
                 if include_justification:
                     prompt += f"{metric.upper()}_JUSTIFICATION: [text]\n"
             
-            logging.debug(f"Generated prompt for task type {task_type}")
-            print(f"Generated prompt for task type {task_type}:\n{prompt}")  # Print prompt)
+            logging.info(f"Generated prompt for task type {task_type}")
+            logging.info(f"Generated prompt for task type {task_type}:\n{prompt}")  # Print prompt)
             return prompt
             
         except Exception as e:
